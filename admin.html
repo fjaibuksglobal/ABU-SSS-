@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Admin Dashboard - ABU</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <h2>Admin Dashboard</h2>
+      <div>
+        <span id="who" class="muted"></span>
+        <a class="btn" id="logoutBtn" href="logout.html">Logout</a>
+      </div>
+    </div>
+
+    <section class="cards" style="margin-top:18px">
+      <div class="card">
+        <h3>Register new user</h3>
+        <form id="regForm">
+          <label>Full name</label>
+          <input class="input" id="name" required>
+          <label>Username</label>
+          <input class="input" id="newusername" required>
+          <label>Password</label>
+          <input class="input" id="newpassword" required>
+          <label>Role</label>
+          <select class="input" id="role">
+            <option value="teacher">Teacher</option>
+            <option value="student">Student</option>
+          </select>
+          <button class="submit" type="submit">Register User</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Manage (placeholders)</h3>
+        <p>Manage classes, exams, subjects and assign designations to teachers here.</p>
+        <ul>
+          <li>Create classes and assign teachers (extend this demo)</li>
+          <li>Add exam types and subjects</li>
+          <li>Manage employee attendance, leave and salary</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h3>Existing users</h3>
+      <div id="usersList"></div>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    Auth.protect('admin');
+    document.getElementById('who').textContent = 'Signed in as: ' + Auth.current().username;
+
+    function renderUsers(){
+      const users = Auth.getAllUsers();
+      const wrap = document.getElementById('usersList');
+      let html = '<table style="width:100%;border-collapse:collapse"><tr><th>Username</th><th>Name</th><th>Role</th></tr>';
+      users.forEach(u => {
+        html += '<tr><td>'+u.username+'</td><td>'+ (u.name||'') +'</td><td>'+u.role+'</td></tr>';
+      });
+      html += '</table>';
+      wrap.innerHTML = html;
+    }
+    renderUsers();
+
+    document.getElementById('regForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('newusername').value.trim();
+      const password = document.getElementById('newpassword').value.trim();
+      const role = document.getElementById('role').value;
+      const res = Auth.register({name,username,password,role});
+      if(res.success){
+        alert('User created');
+        renderUsers();
+        e.target.reset();
+      } else alert(res.message);
+    });
+  </script>
+</body>
+</html>

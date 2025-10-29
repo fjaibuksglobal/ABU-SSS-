@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Teacher Dashboard</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <h2>Teacher Dashboard</h2>
+      <div>
+        <span id="who" class="muted"></span>
+        <a class="btn" href="logout.html">Logout</a>
+      </div>
+    </div>
+
+    <section class="cards" style="margin-top:18px">
+      <div class="card">
+        <h3>My Students</h3>
+        <div id="studentList"></div>
+      </div>
+
+      <div class="card">
+        <h3>Take Attendance</h3>
+        <form id="attForm">
+          <label>Student</label>
+          <select class="input" id="attStudent"></select>
+          <label>Date</label>
+          <input class="input" id="attDate" type="date" value="">
+          <label>Status</label>
+          <select class="input" id="attStatus"><option value="present">Present</option><option value="absent">Absent</option></select>
+          <button class="submit" type="submit">Save Attendance</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Enter / Update Marks</h3>
+        <form id="marksForm">
+          <label>Student</label>
+          <select class="input" id="markStudent"></select>
+          <label>Subject</label>
+          <input class="input" id="markSubject" value="Mathematics">
+          <label>Score</label>
+          <input class="input" id="markScore" type="number" min="0" max="100" value="0">
+          <button class="submit" type="submit">Save Marks</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    Auth.protect('teacher');
+    document.getElementById('who').textContent = 'Signed in as: ' + Auth.current().username;
+
+    function fillStudents(){
+      const students = Auth.getAllUsers().filter(u=>u.role==='student');
+      const sl = document.getElementById('studentList');
+      const sel1 = document.getElementById('attStudent');
+      const sel2 = document.getElementById('markStudent');
+      sel1.innerHTML = ''; sel2.innerHTML = '';
+      let table = '<table style="width:100%"><tr><th>Username</th><th>Name</th></tr>';
+      students.forEach(s=>{
+        table += '<tr><td>'+s.username+'</td><td>'+ (s.name||'') +'</td></tr>';
+        let opt = '<option value="'+s.username+'">'+s.username+' ('+(s.name||'')+')</option>';
+        sel1.innerHTML += opt;
+        sel2.innerHTML += opt;
+      });
+      table += '</table>';
+      sl.innerHTML = table;
+    }
+    fillStudents();
+
+    document.getElementById('attForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const student = document.getElementById('attStudent').value;
+      const date = document.getElementById('attDate').value || new Date().toISOString().slice(0,10);
+      const status = document.getElementById('attStatus').value;
+      Auth.saveAttendance(student, date, status);
+      alert('Attendance saved');
+    });
+
+    document.getElementById('marksForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const student = document.getElementById('markStudent').value;
+      const subject = document.getElementById('markSubject').value.trim();
+      const score = Number(document.getElementById('markScore').value);
+      Auth.saveMark(student, subject, score);
+      alert('Mark saved');
+    });
+  </script>
+</body>
+</html>

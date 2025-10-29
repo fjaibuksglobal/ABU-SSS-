@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Student Dashboard</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <h2>Student Dashboard</h2>
+      <div>
+        <span id="who" class="muted"></span>
+        <a class="btn" href="logout.html">Logout</a>
+      </div>
+    </div>
+
+    <section class="cards" style="margin-top:18px">
+      <div class="card">
+        <h3>My Profile</h3>
+        <p>Name: <span id="pname"></span></p>
+        <p>Username: <span id="puname"></span></p>
+        <form id="updateProfile">
+          <label>Update display name</label>
+          <input class="input" id="upname">
+          <button class="submit" type="submit">Save</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Attendance</h3>
+        <div id="attView"></div>
+      </div>
+
+      <div class="card">
+        <h3>Grades</h3>
+        <div id="marksView"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    Auth.protect('student');
+    const cur = Auth.current();
+    document.getElementById('who').textContent = 'Signed in as: ' + cur.username;
+    document.getElementById('pname').textContent = cur.name || '';
+    document.getElementById('puname').textContent = cur.username;
+    document.getElementById('upname').value = cur.name || '';
+
+    document.getElementById('updateProfile').addEventListener('submit', function(e){
+      e.preventDefault();
+      Auth.updateProfile(cur.username, {name: document.getElementById('upname').value.trim()});
+      alert('Profile updated');
+    });
+
+    function renderAttendance(){
+      const a = Auth.getAttendanceForUser(cur.username);
+      if(!a || a.length===0){ document.getElementById('attView').innerHTML = '<p class="muted">No attendance yet.</p>'; return; }
+      let s = '<table style="width:100%"><tr><th>Date</th><th>Status</th></tr>';
+      a.forEach(r=> s += '<tr><td>'+r.date+'</td><td>'+r.status+'</td></tr>');
+      s += '</table>';
+      document.getElementById('attView').innerHTML = s;
+    }
+    function renderMarks(){
+      const m = Auth.getMarksForUser(cur.username);
+      if(!m || m.length===0){ document.getElementById('marksView').innerHTML = '<p class="muted">No marks yet.</p>'; return; }
+      let s = '<table style="width:100%"><tr><th>Subject</th><th>Score</th></tr>';
+      m.forEach(r=> s += '<tr><td>'+r.subject+'</td><td>'+r.score+'</td></tr>');
+      s += '</table>';
+      document.getElementById('marksView').innerHTML = s;
+    }
+    renderAttendance(); renderMarks();
+  </script>
+</body>
+</html>

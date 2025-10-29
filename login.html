@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login - ABU Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="form-wrap">
+      <h2>Portal Login</h2>
+      <p id="msg" class="muted"></p>
+      <form id="loginForm">
+        <label>Username</label>
+        <input class="input" type="text" id="username" required>
+        <label>Password</label>
+        <input class="input" type="password" id="password" required>
+        <button class="submit" type="submit">Login</button>
+      </form>
+      <p style="margin-top:12px;color:#666">Default admin user: <strong>.... ? ....</strong> </p>
+      <p style="margin-top:8px">Want to test teacher or student? Use <strong>mrteacher</strong>/<strong>teach123</strong> or <strong>student1</strong>/<strong>stud123</strong></p>
+      <p style="margin-top:12px;"><a href="index.html">← Back to Home</a></p>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      const ok = Auth.login(u,p);
+      const msg = document.getElementById('msg');
+      if(ok.success){
+        msg.textContent = 'Login successful — redirecting...';
+        setTimeout(()=> {
+          if(ok.role === 'admin') window.location = 'admin.html';
+          else if(ok.role === 'teacher') window.location = 'teacher.html';
+          else window.location = 'student.html';
+        }, 600);
+      } else {
+        msg.textContent = ok.message;
+        msg.style.color = '#b91c1c';
+      }
+    });
+  </script>
+</body>
+</html>
